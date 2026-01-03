@@ -1,0 +1,32 @@
+{% apply spaceless %}
+{% set sitename = "Fidélys" %}
+{% set l = "" %}
+{% set t = sitename %}
+{% set d = "Fidélys" %}
+{% set b = "" %}
+{% set w = app.request.schemeAndHttpHost() %}
+{% if alt is not defined %} {% set alt = false %} {% endif %}
+{% if title is defined %}{% set t = (title|trans)~' | '~t %}{% endif %}
+{% if desc is defined %}{% set d = desc %}{% endif %}
+{% if logo is defined %}{% set l = logo %}{% endif %}
+{% if banner is defined %}
+    {% set b = banner %}
+{% endif %}
+{% if thumbnail is not defined or thumbnail is empty %}
+    {% set thumbnailSize = {width: 0, height:0 } %}
+    {% set thumb = null %}
+{% else %}
+    {% if thumbnail|startWith("http") %}
+        {% set thumb = thumbnail %}
+        {% set thumbnailSize = (thumb)|imagesize %}
+    {% else %}
+        {% set thumb = w~asset(thumbnail) %}
+        {% set thumbnailSize = thumb|imagesize %}
+    {% endif %}
+{% endif %}
+
+{% set home = home is defined ? home : false %}
+
+{% block html %}
+{% endblock html %}
+{% endapply %}

@@ -283,7 +283,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     asset_mapper?: bool|array{ // Asset Mapper configuration
- *         enabled?: bool|Param, // Default: true
+ *         enabled?: bool|Param, // Default: false
  *         paths?: array<string, scalar|null|Param>,
  *         excluded_patterns?: list<scalar|null|Param>,
  *         exclude_dotfiles?: bool|Param, // If true, any files starting with "." will be excluded from the asset mapper. // Default: true
@@ -418,7 +418,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: true
  *     },
  *     lock?: bool|string|array{ // Lock configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         resources?: array<string, string|list<scalar|null|Param>>,
  *     },
  *     semaphore?: bool|string|array{ // Semaphore configuration
@@ -629,7 +629,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     rate_limiter?: bool|array{ // Rate limiter configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         limiters?: array<string, array{ // Default: []
  *             lock_factory?: scalar|null|Param, // The service ID of the lock factory used by this limiter (or null to disable locking). // Default: "auto"
  *             cache_pool?: scalar|null|Param, // The cache pool to use for storing the current limiter state. // Default: "cache.rate_limiter"
@@ -645,7 +645,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     uid?: bool|array{ // Uid configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         default_uuid_version?: 7|6|4|1|Param, // Default: 7
  *         name_based_uuid_version?: 5|3|Param, // Default: 5
  *         name_based_uuid_namespace?: scalar|null|Param,
@@ -1010,7 +1010,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: false
  *     },
  *     html?: bool|array{
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *     },
  *     markdown?: bool|array{
  *         enabled?: bool|Param, // Default: false
@@ -1106,6 +1106,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             filter?: scalar|null|Param, // Default: "({uid_key}={user_identifier})"
  *             password_attribute?: scalar|null|Param, // Default: null
  *         },
+ *         lexik_jwt?: array{
+ *             class?: scalar|null|Param, // Default: "Lexik\\Bundle\\JWTAuthenticationBundle\\Security\\User\\JWTUser"
+ *         },
  *     }>,
  *     firewalls: array<string, array{ // Default: []
  *         pattern?: scalar|null|Param,
@@ -1163,6 +1166,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         remote_user?: array{
  *             provider?: scalar|null|Param,
  *             user?: scalar|null|Param, // Default: "REMOTE_USER"
+ *         },
+ *         jwt?: array{
+ *             provider?: scalar|null|Param, // Default: null
+ *             authenticator?: scalar|null|Param, // Default: "lexik_jwt_authentication.security.jwt_authenticator"
  *         },
  *         login_link?: array{
  *             check_route: scalar|null|Param, // Route that will validate the login link - e.g. "app_login_link_verify".
@@ -1511,6 +1518,380 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     generate_final_classes?: bool|Param, // Default: true
  *     generate_final_entities?: bool|Param, // Default: false
  * }
+ * @psalm-type TwigComponentConfig = array{
+ *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
+ *         template_directory?: scalar|null|Param, // Default: "components"
+ *         name_prefix?: scalar|null|Param, // Default: ""
+ *     }>,
+ *     anonymous_template_directory?: scalar|null|Param, // Defaults to `components`
+ *     profiler?: bool|Param, // Enables the profiler for Twig Component (in debug mode) // Default: "%kernel.debug%"
+ *     controllers_json?: scalar|null|Param, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
+ * }
+ * @psalm-type FosJsRoutingConfig = array{
+ *     serializer?: scalar|null|Param,
+ *     routes_to_expose?: list<scalar|null|Param>,
+ *     router?: scalar|null|Param, // Default: "router"
+ *     request_context_base_url?: scalar|null|Param, // Default: null
+ *     cache_control?: array{
+ *         public?: bool|Param, // Default: false
+ *         expires?: scalar|null|Param, // Default: null
+ *         maxage?: scalar|null|Param, // Default: null
+ *         smaxage?: scalar|null|Param, // Default: null
+ *         vary?: list<scalar|null|Param>,
+ *     },
+ * }
+ * @psalm-type FlysystemConfig = array{
+ *     storages?: array<string, array{ // Default: []
+ *         adapter: scalar|null|Param,
+ *         options?: list<mixed>,
+ *         visibility?: scalar|null|Param, // Default: null
+ *         directory_visibility?: scalar|null|Param, // Default: null
+ *         retain_visibility?: bool|null|Param, // Default: null
+ *         case_sensitive?: bool|Param, // Default: true
+ *         disable_asserts?: bool|Param, // Default: false
+ *         public_url?: list<scalar|null|Param>,
+ *         path_normalizer?: scalar|null|Param, // Default: null
+ *         public_url_generator?: scalar|null|Param, // Default: null
+ *         temporary_url_generator?: scalar|null|Param, // Default: null
+ *         read_only?: bool|Param, // Default: false
+ *     }>,
+ * }
+ * @psalm-type LexikJwtAuthenticationConfig = array{
+ *     public_key?: scalar|null|Param, // The key used to sign tokens (useless for HMAC). If not set, the key will be automatically computed from the secret key. // Default: null
+ *     additional_public_keys?: list<scalar|null|Param>,
+ *     secret_key?: scalar|null|Param, // The key used to sign tokens. It can be a raw secret (for HMAC), a raw RSA/ECDSA key or the path to a file itself being plaintext or PEM. // Default: null
+ *     pass_phrase?: scalar|null|Param, // The key passphrase (useless for HMAC) // Default: ""
+ *     token_ttl?: scalar|null|Param, // Default: 3600
+ *     allow_no_expiration?: bool|Param, // Allow tokens without "exp" claim (i.e. indefinitely valid, no lifetime) to be considered valid. Caution: usage of this should be rare. // Default: false
+ *     clock_skew?: scalar|null|Param, // Default: 0
+ *     encoder?: array{
+ *         service?: scalar|null|Param, // Default: "lexik_jwt_authentication.encoder.lcobucci"
+ *         signature_algorithm?: scalar|null|Param, // Default: "RS256"
+ *     },
+ *     user_id_claim?: scalar|null|Param, // Default: "username"
+ *     token_extractors?: array{
+ *         authorization_header?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *             prefix?: scalar|null|Param, // Default: "Bearer"
+ *             name?: scalar|null|Param, // Default: "Authorization"
+ *         },
+ *         cookie?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             name?: scalar|null|Param, // Default: "BEARER"
+ *         },
+ *         query_parameter?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             name?: scalar|null|Param, // Default: "bearer"
+ *         },
+ *         split_cookie?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             cookies?: list<scalar|null|Param>,
+ *         },
+ *     },
+ *     remove_token_from_body_when_cookies_used?: scalar|null|Param, // Default: true
+ *     set_cookies?: array<string, array{ // Default: []
+ *         lifetime?: scalar|null|Param, // The cookie lifetime. If null, the "token_ttl" option value will be used // Default: null
+ *         samesite?: "none"|"lax"|"strict"|Param, // Default: "lax"
+ *         path?: scalar|null|Param, // Default: "/"
+ *         domain?: scalar|null|Param, // Default: null
+ *         secure?: scalar|null|Param, // Default: true
+ *         httpOnly?: scalar|null|Param, // Default: true
+ *         partitioned?: scalar|null|Param, // Default: false
+ *         split?: list<scalar|null|Param>,
+ *     }>,
+ *     api_platform?: bool|array{ // API Platform compatibility: add check_path in OpenAPI documentation.
+ *         enabled?: bool|Param, // Default: false
+ *         check_path?: scalar|null|Param, // The login check path to add in OpenAPI. // Default: null
+ *         username_path?: scalar|null|Param, // The path to the username in the JSON body. // Default: null
+ *         password_path?: scalar|null|Param, // The path to the password in the JSON body. // Default: null
+ *     },
+ *     access_token_issuance?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         signature?: array{
+ *             algorithm: scalar|null|Param, // The algorithm use to sign the access tokens.
+ *             key: scalar|null|Param, // The signature key. It shall be JWK encoded.
+ *         },
+ *         encryption?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             key_encryption_algorithm: scalar|null|Param, // The key encryption algorithm is used to encrypt the token.
+ *             content_encryption_algorithm: scalar|null|Param, // The key encryption algorithm is used to encrypt the token.
+ *             key: scalar|null|Param, // The encryption key. It shall be JWK encoded.
+ *         },
+ *     },
+ *     access_token_verification?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         signature?: array{
+ *             header_checkers?: list<scalar|null|Param>,
+ *             claim_checkers?: list<scalar|null|Param>,
+ *             mandatory_claims?: list<scalar|null|Param>,
+ *             allowed_algorithms?: list<scalar|null|Param>,
+ *             keyset: scalar|null|Param, // The signature keyset. It shall be JWKSet encoded.
+ *         },
+ *         encryption?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             continue_on_decryption_failure?: bool|Param, // If enable, non-encrypted tokens or tokens that failed during decryption or verification processes are accepted. // Default: false
+ *             header_checkers?: list<scalar|null|Param>,
+ *             allowed_key_encryption_algorithms?: list<scalar|null|Param>,
+ *             allowed_content_encryption_algorithms?: list<scalar|null|Param>,
+ *             keyset: scalar|null|Param, // The encryption keyset. It shall be JWKSet encoded.
+ *         },
+ *     },
+ *     blocklist_token?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         cache?: scalar|null|Param, // Storage to track blocked tokens // Default: "cache.app"
+ *     },
+ * }
+ * @psalm-type NelmioApiDocConfig = array{
+ *     type_info?: bool|Param, // Use the symfony/type-info component for determining types. // Default: false
+ *     use_validation_groups?: bool|Param, // If true, `groups` passed to #[Model] attributes will be used to limit validation constraints // Default: false
+ *     operation_id_generation?: \Nelmio\ApiDocBundle\Describer\OperationIdGeneration::ALWAYS_PREPEND|\Nelmio\ApiDocBundle\Describer\OperationIdGeneration::CONDITIONALLY_PREPEND|\Nelmio\ApiDocBundle\Describer\OperationIdGeneration::NO_PREPEND|"always_prepend"|"conditionally_prepend"|"no_prepend"|Param, // How to generate operation ids // Default: "always_prepend"
+ *     cache?: array{
+ *         pool?: scalar|null|Param, // define cache pool to use // Default: null
+ *         item_id?: scalar|null|Param, // define cache item id // Default: null
+ *     },
+ *     documentation?: array<string, mixed>,
+ *     media_types?: list<scalar|null|Param>,
+ *     html_config?: array{ // UI configuration options
+ *         assets_mode?: scalar|null|Param, // Default: "cdn"
+ *         swagger_ui_config?: array<mixed>,
+ *         redocly_config?: array<mixed>,
+ *         stoplight_config?: array<mixed>,
+ *     },
+ *     areas?: array<string, array{ // Default: {"default":{"path_patterns":[],"host_patterns":[],"with_attribute":false,"documentation":[],"name_patterns":[],"disable_default_routes":false,"cache":[],"security":[]}}
+ *         path_patterns?: list<scalar|null|Param>,
+ *         host_patterns?: list<scalar|null|Param>,
+ *         name_patterns?: list<scalar|null|Param>,
+ *         security?: array<string, array{ // Default: []
+ *             type?: scalar|null|Param,
+ *             scheme?: scalar|null|Param,
+ *             in?: scalar|null|Param,
+ *             name?: scalar|null|Param,
+ *             description?: scalar|null|Param,
+ *             openIdConnectUrl?: scalar|null|Param,
+ *             ...<mixed>
+ *         }>,
+ *         with_attribute?: bool|Param, // whether to filter by attributes // Default: false
+ *         disable_default_routes?: bool|Param, // if set disables default routes without attributes // Default: false
+ *         documentation?: array<string, mixed>,
+ *         cache?: array{
+ *             pool?: scalar|null|Param, // define cache pool to use // Default: null
+ *             item_id?: scalar|null|Param, // define cache item id // Default: null
+ *         },
+ *     }>,
+ *     models?: array{
+ *         use_jms?: bool|Param, // Default: false
+ *         names?: list<array{ // Default: []
+ *             alias: scalar|null|Param,
+ *             type: scalar|null|Param,
+ *             groups?: mixed, // Default: null
+ *             options?: mixed, // Default: null
+ *             serializationContext?: list<mixed>,
+ *             areas?: list<scalar|null|Param>,
+ *         }>,
+ *     },
+ * }
+ * @psalm-type InertiaConfig = array{
+ *     root_view?: scalar|null|Param, // Default: "base.html.twig"
+ *     ssr?: array{
+ *         enabled?: bool|Param, // Default: false
+ *         url?: scalar|null|Param, // Default: ""
+ *     },
+ *     csrf?: array{
+ *         enabled?: bool|Param, // Default: true
+ *         cookie_name?: scalar|null|Param, // Default: "XSRF-TOKEN"
+ *         header_name?: scalar|null|Param, // Default: "X-XSRF-TOKEN"
+ *         expire?: scalar|null|Param, // Default: 0
+ *         path?: scalar|null|Param, // Default: "/"
+ *         domain?: scalar|null|Param, // Default: null
+ *         secure?: scalar|null|Param, // Default: false
+ *         raw?: scalar|null|Param, // Default: false
+ *         samesite?: scalar|null|Param, // Default: "lax"
+ *     },
+ * }
+ * @psalm-type WebpackEncoreConfig = array{
+ *     output_path: scalar|null|Param, // The path where Encore is building the assets - i.e. Encore.setOutputPath()
+ *     crossorigin?: false|"anonymous"|"use-credentials"|Param, // crossorigin value when Encore.enableIntegrityHashes() is used, can be false (default), anonymous or use-credentials // Default: false
+ *     preload?: bool|Param, // preload all rendered script and link tags automatically via the http2 Link header. // Default: false
+ *     cache?: bool|Param, // Enable caching of the entry point file(s) // Default: false
+ *     strict_mode?: bool|Param, // Throw an exception if the entrypoints.json file is missing or an entry is missing from the data // Default: true
+ *     builds?: array<string, scalar|null|Param>,
+ *     script_attributes?: array<string, scalar|null|Param>,
+ *     link_attributes?: array<string, scalar|null|Param>,
+ * }
+ * @psalm-type VichUploaderConfig = array{
+ *     default_filename_attribute_suffix?: scalar|null|Param, // Default: "_name"
+ *     db_driver: scalar|null|Param,
+ *     storage?: scalar|null|Param, // Default: "file_system"
+ *     use_flysystem_to_resolve_uri?: bool|Param, // Default: false
+ *     twig?: scalar|null|Param, // twig requires templating // Default: true
+ *     form?: scalar|null|Param, // Default: true
+ *     metadata?: array{
+ *         cache?: scalar|null|Param, // Default: "file"
+ *         type?: scalar|null|Param, // Default: "attribute"
+ *         file_cache?: array{
+ *             dir?: scalar|null|Param, // Default: "%kernel.cache_dir%/vich_uploader"
+ *         },
+ *         auto_detection?: bool|Param, // Default: true
+ *         directories?: list<array{ // Default: []
+ *             path: scalar|null|Param,
+ *             namespace_prefix?: scalar|null|Param, // Default: ""
+ *         }>,
+ *     },
+ *     mappings?: array<string, array{ // Default: []
+ *         uri_prefix?: scalar|null|Param, // Default: "/uploads"
+ *         upload_destination?: scalar|null|Param, // Default: null
+ *         namer?: string|array{
+ *             service?: scalar|null|Param, // Default: null
+ *             options?: mixed, // Default: null
+ *         },
+ *         directory_namer?: string|array{
+ *             service?: scalar|null|Param, // Default: null
+ *             options?: mixed, // Default: null
+ *         },
+ *         delete_on_remove?: scalar|null|Param, // Default: true
+ *         erase_fields?: scalar|null|Param, // Default: true
+ *         delete_on_update?: scalar|null|Param, // Default: true
+ *         inject_on_load?: scalar|null|Param, // Default: false
+ *         namer_keep_extension?: scalar|null|Param, // Default: false
+ *         db_driver?: scalar|null|Param, // Default: null
+ *     }>,
+ * }
+ * @psalm-type ZenstruckScheduleConfig = array{
+ *     without_overlapping_lock_factory?: scalar|null|Param, // The LockFactory service to use for the without overlapping extension // Default: null
+ *     single_server_lock_factory?: scalar|null|Param, // The LockFactory service to use for the single server extension - be sure to use a "remote store" (https://symfony.com/doc/current/components/lock.html#remote-stores) // Default: null
+ *     http_client?: scalar|null|Param, // The HttpClient service to use // Default: null
+ *     timezone?: scalar|null|Param, // The default timezone for tasks (override at task level), null for system default // Default: null
+ *     messenger?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         message_bus?: scalar|null|Param, // The message bus to use // Default: "message_bus"
+ *     },
+ *     mailer?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         service?: scalar|null|Param, // The mailer service to use // Default: "mailer"
+ *         default_from?: scalar|null|Param, // The default "from" email address (use if no mailer default from is configured) // Default: null
+ *         default_to?: scalar|null|Param, // The default "to" email address (can be overridden by extension) // Default: null
+ *         subject_prefix?: scalar|null|Param, // The prefix to use for email subjects (use to distinguish between different application schedules) // Default: null
+ *     },
+ *     notifier?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         service?: scalar|null|Param, // The notifier service to use // Default: "notifier"
+ *         default_channel?: list<scalar|null|Param>,
+ *         default_email?: scalar|null|Param, // The default email to use for email notification // Default: null
+ *         default_phone?: scalar|null|Param, // The default phone number to use for SMS notification // Default: null
+ *         subject_prefix?: scalar|null|Param, // The prefix to use for notifier subjects (use to distinguish between different application schedules) // Default: null
+ *     },
+ *     schedule_extensions?: array{
+ *         environments?: list<scalar|null|Param>,
+ *         on_single_server?: bool|array{ // Run schedule on only one server
+ *             enabled?: bool|Param, // Default: false
+ *             ttl?: int|Param, // Maximum expected lock duration in seconds // Default: 3600
+ *         },
+ *         email_on_failure?: bool|string|array{ // Send email if schedule fails (alternatively enable by passing a "to" email)
+ *             enabled?: bool|Param, // Default: false
+ *             to?: scalar|null|Param, // Email address to send email to (leave blank to use "zenstruck_schedule.mailer.default_to") // Default: null
+ *             subject?: scalar|null|Param, // Email subject (leave blank to use extension default) // Default: null
+ *         },
+ *         notify_on_failure?: bool|array{ // Send notification if schedule fails (alternatively enable by passing a "channel")
+ *             enabled?: bool|Param, // Default: false
+ *             channel?: list<scalar|null|Param>,
+ *             email?: scalar|null|Param, // Email address for email notifications (leave blank to use extension default) // Default: null
+ *             phone?: scalar|null|Param, // Phone number for SMS notifications (leave blank to use extension default) // Default: null
+ *             subject?: scalar|null|Param, // Notification subject (leave blank to use extension default) // Default: null
+ *         },
+ *         ping_before?: bool|string|array{ // Ping a url before schedule runs (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_after?: bool|string|array{ // Ping a url after schedule runs (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_on_success?: bool|string|array{ // Ping a url if the schedule successfully ran (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_on_failure?: bool|string|array{ // Ping a url if the schedule failed (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *     },
+ *     tasks?: list<array{ // Default: []
+ *         task: list<scalar|null|Param>,
+ *         frequency: scalar|null|Param, // Cron expression
+ *         description?: scalar|null|Param, // Task description // Default: null
+ *         timezone?: scalar|null|Param, // The timezone for this task, null for system default // Default: null
+ *         without_overlapping?: bool|array{ // Prevent task from running if still running from previous run
+ *             enabled?: bool|Param, // Default: false
+ *             ttl?: int|Param, // Maximum expected lock duration in seconds // Default: 86400
+ *         },
+ *         only_between?: bool|string|array{ // Only run between given times (alternatively enable by passing a range, ie "9:00-17:00"
+ *             enabled?: bool|Param, // Default: false
+ *             start: scalar|null|Param,
+ *             end: scalar|null|Param,
+ *         },
+ *         unless_between?: bool|string|array{ // Skip when between given times (alternatively enable by passing a range, ie "17:00-06:00"
+ *             enabled?: bool|Param, // Default: false
+ *             start: scalar|null|Param,
+ *             end: scalar|null|Param,
+ *         },
+ *         ping_before?: bool|string|array{ // Ping a url before task runs (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_after?: bool|string|array{ // Ping a url after task runs (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_on_success?: bool|string|array{ // Ping a url if the task successfully ran (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         ping_on_failure?: bool|string|array{ // Ping a url if the task failed (alternatively enable by passing a url)
+ *             enabled?: bool|Param, // Default: false
+ *             url: scalar|null|Param, // The url to ping
+ *             method?: scalar|null|Param, // The HTTP method to use // Default: "GET"
+ *             options?: list<mixed>,
+ *         },
+ *         email_after?: bool|string|array{ // Send email after task runs (alternatively enable by passing a "to" email)
+ *             enabled?: bool|Param, // Default: false
+ *             to?: scalar|null|Param, // Email address to send email to (leave blank to use "zenstruck_schedule.mailer.default_to") // Default: null
+ *             subject?: scalar|null|Param, // Email subject (leave blank to use extension default) // Default: null
+ *         },
+ *         email_on_failure?: bool|string|array{ // Send email if task fails (alternatively enable by passing a "to" email)
+ *             enabled?: bool|Param, // Default: false
+ *             to?: scalar|null|Param, // Email address to send email to (leave blank to use "zenstruck_schedule.mailer.default_to") // Default: null
+ *             subject?: scalar|null|Param, // Email subject (leave blank to use extension default) // Default: null
+ *         },
+ *         notify_after?: bool|array{ // Send notification after task runs (alternatively enable by passing a "channel")
+ *             enabled?: bool|Param, // Default: false
+ *             channel?: list<scalar|null|Param>,
+ *             email?: scalar|null|Param, // Email address for email notifications (leave blank to use extension default) // Default: null
+ *             phone?: scalar|null|Param, // Phone number for SMS notifications (leave blank to use extension default) // Default: null
+ *             subject?: scalar|null|Param, // Notification subject (leave blank to use extension default) // Default: null
+ *         },
+ *         notify_on_failure?: bool|array{ // Send notification if task fails (alternatively enable by passing a "channel")
+ *             enabled?: bool|Param, // Default: false
+ *             channel?: list<scalar|null|Param>,
+ *             email?: scalar|null|Param, // Email address for email notifications (leave blank to use extension default) // Default: null
+ *             phone?: scalar|null|Param, // Phone number for SMS notifications (leave blank to use extension default) // Default: null
+ *             subject?: scalar|null|Param, // Notification subject (leave blank to use extension default) // Default: null
+ *         },
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1524,6 +1905,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_extra?: TwigExtraConfig,
  *     security?: SecurityConfig,
  *     monolog?: MonologConfig,
+ *     twig_component?: TwigComponentConfig,
+ *     fos_js_routing?: FosJsRoutingConfig,
+ *     flysystem?: FlysystemConfig,
+ *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *     nelmio_api_doc?: NelmioApiDocConfig,
+ *     inertia?: InertiaConfig,
+ *     webpack_encore?: WebpackEncoreConfig,
+ *     vich_uploader?: VichUploaderConfig,
+ *     zenstruck_schedule?: ZenstruckScheduleConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1540,6 +1930,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         maker?: MakerConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         fos_js_routing?: FosJsRoutingConfig,
+ *         flysystem?: FlysystemConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_api_doc?: NelmioApiDocConfig,
+ *         inertia?: InertiaConfig,
+ *         webpack_encore?: WebpackEncoreConfig,
+ *         vich_uploader?: VichUploaderConfig,
+ *         zenstruck_schedule?: ZenstruckScheduleConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1554,6 +1953,38 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         fos_js_routing?: FosJsRoutingConfig,
+ *         flysystem?: FlysystemConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_api_doc?: NelmioApiDocConfig,
+ *         inertia?: InertiaConfig,
+ *         webpack_encore?: WebpackEncoreConfig,
+ *         vich_uploader?: VichUploaderConfig,
+ *         zenstruck_schedule?: ZenstruckScheduleConfig,
+ *     },
+ *     "when@staging"?: array{
+ *         imports?: ImportsConfig,
+ *         parameters?: ParametersConfig,
+ *         services?: ServicesConfig,
+ *         framework?: FrameworkConfig,
+ *         doctrine?: DoctrineConfig,
+ *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         twig?: TwigConfig,
+ *         stimulus?: StimulusConfig,
+ *         turbo?: TurboConfig,
+ *         twig_extra?: TwigExtraConfig,
+ *         security?: SecurityConfig,
+ *         monolog?: MonologConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         fos_js_routing?: FosJsRoutingConfig,
+ *         flysystem?: FlysystemConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_api_doc?: NelmioApiDocConfig,
+ *         inertia?: InertiaConfig,
+ *         webpack_encore?: WebpackEncoreConfig,
+ *         vich_uploader?: VichUploaderConfig,
+ *         zenstruck_schedule?: ZenstruckScheduleConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1569,6 +2000,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         fos_js_routing?: FosJsRoutingConfig,
+ *         flysystem?: FlysystemConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_api_doc?: NelmioApiDocConfig,
+ *         inertia?: InertiaConfig,
+ *         webpack_encore?: WebpackEncoreConfig,
+ *         vich_uploader?: VichUploaderConfig,
+ *         zenstruck_schedule?: ZenstruckScheduleConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
@@ -1651,6 +2091,7 @@ namespace Symfony\Component\Routing\Loader\Configurator;
  * @psalm-type RoutesConfig = array{
  *     "when@dev"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     "when@prod"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
+ *     "when@staging"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     "when@test"?: array<string, RouteConfig|ImportConfig|AliasConfig>,
  *     ...<string, RouteConfig|ImportConfig|AliasConfig>
  * }

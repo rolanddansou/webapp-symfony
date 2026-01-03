@@ -1,0 +1,156 @@
+{# templates/admin/field/media_widget.html.twig #}
+{# Form theme pour MediaUploadType (compound) et MediaFileType - utilisé dans les formulaires edit/new #}
+
+{% block media_upload_widget %}
+    <div class="media-upload-field">
+        {# Preview de l'image existante #}
+        {% if form.parent.vars.data %}
+            {% set entity = form.parent.vars.data %}
+            {% set propertyName = form.vars.name %}
+
+            {# Essaye de récupérer la valeur actuelle via getter #}
+            {% set getter = 'get' ~ propertyName|capitalize %}
+            {% if attribute(entity, getter) is defined %}
+                {% set currentMedia = attribute(entity, getter) %}
+
+                {% if currentMedia and currentMedia.mimeType is defined %}
+                    <div class="current-media-preview mb-3">
+                        <label class="form-label">Image actuelle:</label>
+                        {% if currentMedia.mimeType starts with 'image/' %}
+                            <div class="mb-2">
+                                <img src="{{ '/uploads/' ~ currentMedia.storagePath }}"
+                                     alt="{{ currentMedia.filename }}"
+                                     class="img-thumbnail"
+                                     style="max-width: 200px; max-height: 200px;">
+                            </div>
+                        {% endif %}
+                        <div class="text-muted small">
+                            {{ currentMedia.filename }} ({{ currentMedia.getSizeInKB() }} KB)
+                        </div>
+
+                        {# Checkbox de suppression (seulement si image existante) #}
+                        <div class="form-check mt-2">
+                            {{ form_widget(form.delete) }}
+                            {{ form_label(form.delete) }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {# Champ d'upload pour nouvelle image #}
+        <div class="mb-2">
+            <label class="form-label">{{ form.file.vars.label ?: 'Nouvelle image' }}</label>
+            {{ form_widget(form.file) }}
+        </div>
+
+        {# Informations sur les contraintes #}
+        {% if form.file.vars.attr.data_max_size is defined or form.file.vars.attr.data_allowed_types is defined %}
+            <div class="form-help text-muted small mt-2">
+                {% if form.file.vars.attr.data_max_size is defined %}
+                    Taille max: {{ (form.file.vars.attr.data_max_size / 1024 / 1024)|round(2) }} MB
+                {% endif %}
+
+                {% if form.file.vars.attr.data_allowed_types is defined %}
+                    | Types autorisés:
+                    {% set allowedTypes = form.file.vars.attr.data_allowed_types|split(',') %}
+                    {% for mimeType in allowedTypes %}
+                        {% if mimeType == 'image/jpeg' %}JPG{% endif %}
+                        {% if mimeType == 'image/png' %}PNG{% endif %}
+                        {% if mimeType == 'image/gif' %}GIF{% endif %}
+                        {% if mimeType == 'image/webp' %}WEBP{% endif %}
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block media_file_widget %}
+    <div class="media-upload-field">
+        {# Preview de l'image existante #}
+        {% if form.parent.vars.data %}
+            {% set entity = form.parent.vars.data %}
+            {% set propertyName = form.vars.name %}
+
+            {# Essaye de récupérer la valeur actuelle via getter #}
+            {% set getter = 'get' ~ propertyName|capitalize %}
+            {% if attribute(entity, getter) is defined %}
+                {% set currentMedia = attribute(entity, getter) %}
+
+                {% if currentMedia and currentMedia.mimeType is defined %}
+                    <div class="current-media-preview mb-3">
+                        <label class="form-label">Image actuelle:</label>
+                        {% if currentMedia.mimeType starts with 'image/' %}
+                            <div class="mb-2">
+                                <img src="{{ '/uploads/' ~ currentMedia.storagePath }}"
+                                     alt="{{ currentMedia.filename }}"
+                                     class="img-thumbnail"
+                                     style="max-width: 200px; max-height: 200px;">
+                            </div>
+                        {% endif %}
+                        <div class="text-muted small">
+                            {{ currentMedia.filename }} ({{ currentMedia.getSizeInKB() }} KB)
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {# Champ d'upload standard #}
+        {{ form_widget(form) }}
+
+        {# Informations sur les contraintes #}
+        {% if form.vars.attr.data_max_size is defined or form.vars.attr.data_allowed_types is defined %}
+            <div class="form-help text-muted small mt-2">
+                {% if form.vars.attr.data_max_size is defined %}
+                    Taille max: {{ (form.vars.attr.data_max_size / 1024 / 1024)|round(2) }} MB
+                {% endif %}
+
+                {% if form.vars.attr.data_allowed_types is defined %}
+                    | Types autorisés:
+                    {% set allowedTypes = form.vars.attr.data_allowed_types|split(',') %}
+                    {% for mimeType in allowedTypes %}
+                        {% if mimeType == 'image/jpeg' %}JPG{% endif %}
+                        {% if mimeType == 'image/png' %}PNG{% endif %}
+                        {% if mimeType == 'image/gif' %}GIF{% endif %}
+                        {% if mimeType == 'image/webp' %}WEBP{% endif %}
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    {# Styles CSS inline #}
+    <style>
+        .media-preview-wrapper img {
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .current-media-preview,
+        .new-media-preview {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .new-media-preview {
+            border-color: #0d6efd;
+            background: #e7f1ff;
+        }
+
+        .preview-image-container img {
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .field-media .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    {% if role.admin %}
+        <h1 class="title">Analytics Dashboard</h1>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {% if role.admin %}
+
+    {% else %}
+       
+    {% endif %}
+{% endblock %}

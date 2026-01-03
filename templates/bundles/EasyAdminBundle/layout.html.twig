@@ -1,0 +1,9 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{# Ajoute le script de preview des images MediaField #}
+{% block configured_body_contents %}
+    {{ parent() }}
+    <script>
+        {{ include('admin/media-preview-inline.js') }}
+    </script>
+{% endblock %}

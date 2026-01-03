@@ -1,0 +1,4 @@
+# PHPStan baseline file - errors to be fixed progressively
+# Generated with: vendor/bin/phpstan analyse --generate-baseline
+parameters:
+

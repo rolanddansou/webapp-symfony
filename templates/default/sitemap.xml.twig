@@ -1,0 +1,36 @@
+{% block content %}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+	<url>
+	  <loc>https://app.com/sitemap.xml</loc>
+	  <lastmod>{{'now'|date('Y-m-d')}}</lastmod>
+	  <priority>1.00</priority>
+	</url>
+	{% if menus is defined and menus %}
+		{% for o in menus %}
+			{% if o.href is defined and o.href %}
+				<url>
+					<loc>{{o.href}}</loc>
+					<lastmod>{{'now'|date('Y-m-d')}}</lastmod>
+					<priority>0.90</priority>
+				</url>
+			{% endif %}
+
+			{% if o.submenus is defined %}
+				{% for k in o.submenus %}
+					<url>
+						<loc>{{k.href}}</loc>
+						<lastmod>{{'now'|date('Y-m-d')}}</lastmod>
+						<priority>0.80</priority>
+					</url>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+</urlset>
+
+{% endblock %}

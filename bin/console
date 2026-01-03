@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use App\Feature\Helper\Timezones;
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
@@ -15,6 +16,8 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {
+    date_default_timezone_set(Timezones::UTC);
+
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
     return new Application($kernel);

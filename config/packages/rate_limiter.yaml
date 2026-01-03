@@ -1,0 +1,44 @@
+# Rate Limiter Configuration
+framework:
+    rate_limiter:
+        # Login endpoint - prevent brute force
+        login:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'
+            lock_factory: 'lock.factory'
+
+        # Registration endpoint - prevent spam
+        registration:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+            lock_factory: 'lock.factory'
+
+        # Password reset - prevent abuse
+        password_reset:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+            lock_factory: 'lock.factory'
+
+        # Email verification resend
+        email_verification:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '5 minutes'
+            lock_factory: 'lock.factory'
+
+        # General API rate limit per user
+        api_authenticated:
+            policy: 'token_bucket'
+            limit: 100
+            rate: { interval: '1 minute', amount: 100 }
+            lock_factory: 'lock.factory'
+
+        # API rate limit for anonymous users
+        api_anonymous:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 minute'
+            lock_factory: 'lock.factory'

@@ -1,0 +1,159 @@
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+}
+
+.chart-container {
+    min-height: 300px;
+    overflow: hidden;
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: #666;
+}
+
+.error-state {
+    padding: 16px;
+    background: #fee;
+    border-radius: 4px;
+    color: #c33;
+}
+
+// Schedule Management Styles
+.schedules-widget,
+.exceptions-widget {
+    .alert {
+        font-size: 14px;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 8px;
+    }
+}
+
+.schedule-item {
+    .card-body {
+        position: relative;
+    }
+
+    .form-group,
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    select[id$="_dayOfWeek"] {
+        max-width: 200px;
+    }
+}
+
+.time-schedules-collection {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.time-range-item,
+.time-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    .form-group,
+    .mb-3,
+    >div {
+        margin-bottom: 0;
+        flex: 1;
+    }
+
+    input[type="time"] {
+        max-width: 120px;
+    }
+
+    .btn {
+        flex-shrink: 0;
+    }
+}
+
+.exception-item {
+    .card-body {
+        position: relative;
+    }
+
+    input[type="date"] {
+        max-width: 180px;
+    }
+
+    input[type="time"] {
+        max-width: 120px;
+    }
+}
+
+// Schedule Display Styles
+.schedule-display {
+    .schedule-day {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        strong {
+            display: inline-block;
+            min-width: 100px;
+            margin-right: 10px;
+        }
+
+        .badge {
+            margin-right: 5px;
+        }
+    }
+}
+
+.exception-display {
+    .exception-list {
+        .exception-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            strong {
+                margin-right: 10px;
+            }
+
+            .badge {
+                margin-right: 5px;
+            }
+        }
+    }
+
+    .text-muted {
+        font-style: italic;
+    }
+}

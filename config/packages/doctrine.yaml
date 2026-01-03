@@ -2,21 +2,61 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
+        # Configuration MySQL 8.0
+        # Pour PostgreSQL: serverVersion: '16'
+        # Pour MariaDB: serverVersion: '10.11.2-MariaDB'
+        charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
+            engine: InnoDB
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+
+        # Options de performance MySQL
+        options:
+            # PDO::MYSQL_ATTR_INIT_COMMAND
+            1002: "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
+
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
         report_fields_where_declared: true
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+
+        # Utiliser IDENTITY pour MySQL (auto_increment)
         identity_generation_preferences:
-            Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
+            # Pour PostgreSQL, décommenter:
+            # Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
+            Doctrine\DBAL\Platforms\MySQLPlatform: identity
+
         auto_mapping: true
+
+        # Cache de second niveau pour performances
+        # Optimisé pour hébergement partagé: TTL élevés pour réduire charge DB
+        second_level_cache:
+            enabled: true
+            regions:
+                # Pour données rarement modifiées (paramètres système, rôles, permissions)
+                write_rare:
+                    lifetime: 7776000  # 90 jours (optimisé hébergement partagé)
+                    cache_driver: { type: service, id: cache.app }
+                # Pour données append-only (logs, historique, audit)
+                append_only:
+                    lifetime: 7776000  # 90 jours (optimisé hébergement partagé)
+                    cache_driver: { type: service, id: cache.app }
+                lock:
+                    lock_path: '%kernel.cache_dir%/doctrine/orm/lock'
+                    type: filelock
+
+        filters:
+            # Filtre pour gérer les entités avec enabled/disabled
+            enabled_disabled_filter:
+                class: App\Doctrine\SQLFilter\EnabledDisabledFilter
+                enabled: false
+
         mappings:
             App:
                 type: attribute
@@ -24,12 +64,21 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+
         controller_resolver:
             auto_mapping: false
+
+        # Résolution des interfaces vers implémentations concrètes
+        resolve_target_entities:
+            App\Entity\Access\IdentityInterface: App\Entity\Access\Identity
+            App\Entity\Access\UserProfile\UserProfileInterface: App\Entity\Access\UserProfile\UserProfile
+            App\Entity\Media\MediaInterface: App\Entity\Media\FileObject
 
 when@test:
     doctrine:
         dbal:
+            # Utiliser une base de données séparée pour les tests
+            # dbname_suffix: '_test%env(default::TEST_TOKEN)%'
             # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 

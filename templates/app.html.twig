@@ -1,0 +1,63 @@
+{% if page is defined and page["props"] is defined %}
+    {% if page["props"].title is defined and page["props"].title %}
+        {% set title= page["props"].title %}
+    {% endif %}
+    {% if page["props"].description is defined and page["props"].description %}
+        {% set desc= page["props"].description %}
+    {% endif %}
+    {% if page["props"].thumbnail is defined and page["props"].thumbnail %}
+        {% set thumbnail= page["props"].thumbnail %}
+    {% else %}
+        {% set thumbnail= "logo-square.png" %}
+    {% endif %}
+{% endif %}
+
+{% extends 'default/parameters.html.twig' %}
+
+{% block html %}
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <title inertia>{{ app_name }}</title>
+        <meta name='description' content='{{d}}' />
+        <meta name="robots" content="noindex">
+        <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1' />
+        <meta property='fb:app_id' content='798097520521275' />
+        <meta property='og:url' content='{{app.request.uri}}' />
+        <meta property='og:type' content='article' />
+        <meta property='og:title' content='{{t}}' data-dynamic='true' />
+        <meta property='og:description' content='{{d}}' data-dynamic='true' />
+        <meta property='og:image' content='{{thumb}}?v=002' data-dynamic='true' />
+        <meta property='og:image:width' content='{{thumbnailSize.width}}' data-dynamic='true'>
+        <meta property='og:image:height' content='{{thumbnailSize.height}}' data-dynamic='true'>
+        <meta property='og:locale' content='fr_FR' />
+        <meta property='og:site_name' content='{{sitename}}' />
+        <meta property='twitter:url' content='{{app.request.uri}}' />
+        <meta property='twitter:card' content='summary' />
+        <meta property='twitter:title' content='{{t}}' />
+        <meta property='twitter:description' content='{{d}}' />
+        <meta property='twitter:image' content='{{thumb}}' />
+
+        <link rel="icon" href="{{asset('icon.png')}}">
+
+        <script src="https://kit.fontawesome.com/5c0ab7f24a.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {{ inertiaHead(page) }}
+    </head>
+    <body>
+    {{ inertia(page) }}
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    </body>
+    </html>
+{% endblock %}

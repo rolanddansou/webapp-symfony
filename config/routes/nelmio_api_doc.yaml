@@ -1,0 +1,10 @@
+# Documentation OpenAPI
+nelmio_api_doc.index:
+    path: /api/docs
+    controller: nelmio_api_doc.controller.swagger_ui
+    methods: [GET]
+
+nelmio_api_doc.json:
+    path: /api/docs.json
+    controller: nelmio_api_doc.controller.swagger
+    methods: [GET]

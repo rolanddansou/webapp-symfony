@@ -1,19 +1,33 @@
 monolog:
     channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - deprecation
+        - security
+        - business
+        - performance
+        - notification
 
 when@dev:
     monolog:
         handlers:
+            # Handler principal - tous les logs en développement
             main:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
+
+            # Console pour affichage direct
             console:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
+
+            # Logs de sécurité séparés
+            security:
+                type: stream
+                path: "%kernel.logs_dir%/security.log"
+                level: info
+                channels: ["security"]
 
 when@test:
     monolog:
@@ -32,24 +46,137 @@ when@test:
 when@prod:
     monolog:
         handlers:
+            # Handler principal avec rotation automatique (30 jours, max 10 fichiers)
             main:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: warning
+                max_files: 10
+                channels: ["!event", "!deprecation", "!security"]
+                formatter: monolog.formatter.json
+
+            # Logs de sécurité avec rotation séparée
+            security:
+                type: rotating_file
+                path: "%kernel.logs_dir%/security.log"
+                level: info
+                max_files: 30
+                channels: ["security"]
+                formatter: monolog.formatter.json
+
+            # Logs business/métier avec rotation
+            business:
+                type: rotating_file
+                path: "%kernel.logs_dir%/business.log"
+                level: info
+                max_files: 15
+                channels: ["business"]
+                formatter: monolog.formatter.json
+
+            # Logs de performance
+            performance:
+                type: rotating_file
+                path: "%kernel.logs_dir%/performance.log"
+                level: info
+                max_files: 7
+                channels: ["performance"]
+
+            # notifications
+            notification:
+                type: rotating_file
+                path: "%kernel.logs_dir%/notification.log"
+                level: info
+                max_files: 7
+                channels: [ notification ]
+                formatter: monolog.formatter.json
+
+            # Alertes CRITICAL -> SUPER_ADMIN uniquement
+            critical_mailer:
+                type: fingers_crossed
+                action_level: critical
+                handler: critical_swift
+                buffer_size: 30
+                stop_buffering: false
+                channels: ["!deprecation", "!event"]
+
+            critical_swift:
+                type: native_mailer
+                to_email: '%env(SUPER_ADMIN_ALERT_EMAIL)%'
+                from_email: '%env(NOTIFICATIONS_MAILER_SENDER_EMAIL)%'
+                subject: '[CRITICAL] Application Error - Action Required'
+                level: critical
+                formatter: monolog.formatter.html
+                content_type: text/html
+                mailer: 'error_mailer'
+
+            # Alertes ERROR -> ADMIN + SUPER_ADMIN
+            error_mailer:
                 type: fingers_crossed
                 action_level: error
-                handler: nested
-                excluded_http_codes: [404, 405]
-                channels: ["!deprecation"]
-                buffer_size: 50 # How many messages should be saved? Prevent memory leaks
-            nested:
-                type: stream
-                path: php://stderr
-                level: debug
-                formatter: monolog.formatter.json
+                handler: error_swift
+                buffer_size: 50
+                stop_buffering: false
+                excluded_http_codes: [404, 405, 410]
+                channels: ["!deprecation", "!event"]
+                activation_strategy: 'monolog.activation_strategy.not_found_activation_strategy'
+
+            error_swift:
+                type: native_mailer
+                to_email: '%env(ADMIN_ALERT_EMAIL)%'
+                from_email: '%env(NOTIFICATIONS_MAILER_SENDER_EMAIL)%'
+                subject: '[ERROR] Application Error'
+                level: error
+                formatter: monolog.formatter.html
+                content_type: text/html
+                mailer: 'error_mailer'
+
+            # Console pour logs temps réel (optionnel)
             console:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine"]
+
+            # Dépréciation séparée
             deprecation:
-                type: stream
-                channels: [deprecation]
-                path: php://stderr
+                type: rotating_file
+                path: "%kernel.logs_dir%/deprecation.log"
+                level: warning
+                max_files: 5
+                channels: ["deprecation"]
+
+when@staging:
+    monolog:
+        handlers:
+            # Similaire à production mais avec niveau debug pour diagnostic
+            main:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: info
+                max_files: 15
+                channels: ["!event", "!deprecation", "!security"]
                 formatter: monolog.formatter.json
+
+            security:
+                type: rotating_file
+                path: "%kernel.logs_dir%/security.log"
+                level: debug
+                max_files: 30
+                channels: ["security"]
+
+            # Alertes activées en staging pour tests
+            critical_mailer:
+                type: fingers_crossed
+                action_level: critical
+                handler: critical_swift
+                buffer_size: 30
+                channels: ["!deprecation", "!event"]
+
+            critical_swift:
+                type: native_mailer
+                to_email: '%env(SUPER_ADMIN_ALERT_EMAIL)%'
+                from_email: '%env(NOTIFICATIONS_MAILER_SENDER_EMAIL)%'
+                subject: '[STAGING][CRITICAL] Application Error'
+                level: critical
+                formatter: monolog.formatter.html
+                content_type: text/html
+                mailer: 'error_mailer'

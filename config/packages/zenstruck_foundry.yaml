@@ -1,0 +1,32 @@
+zenstruck_schedule:
+    # LockFactory pour éviter les chevauchements de tâches
+    without_overlapping_lock_factory: lock.default.factory
+    single_server_lock_factory: lock.default.factory
+
+    # Fuseau horaire
+    timezone: Africa/Porto-Novo
+
+    # Configuration du mailer
+    mailer:
+        enabled: true
+        service: mailer  # Utilise le même service que pour Monolog
+        default_from: '%env(MAILER_ERRORS_FROM)%'
+        default_to: '%env(ERROR_EMAIL_TO)%'
+        subject_prefix: '[%env(APP_NAME)% Schedule] '
+
+    # Extensions pour le scheduler
+    schedule_extensions:
+        # Environnements où les extensions sont activées
+        environments:         [] # Example: [prod, staging]
+
+        # Exécution sur un seul serveur (utile en cluster)
+        on_single_server:
+            enabled: true
+            ttl: 3600  # 1 heure
+
+        # Email en cas d'échec
+        email_on_failure:
+            enabled: true
+            # to: 'rolanddansou773@gmail.com'  # Optionnel, utilise default_to si non spécifié
+            # from: '%env(ERROR_EMAIL_FROM)%'  # Optionnel, utilise default_from si non spécifié
+            subject: '[%env(APP_NAME)%] Schedule failed'

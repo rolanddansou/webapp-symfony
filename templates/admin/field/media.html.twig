@@ -1,0 +1,106 @@
+{# templates/admin/field/media.html.twig #}
+
+{# Styles CSS pour les previews #}
+<style>
+    .media-preview-wrapper img {
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .current-media-preview,
+    .new-media-preview {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+
+    .new-media-preview {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+    }
+
+    .preview-image-container img {
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .field-media .form-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+</style>
+
+{% if ea.crud.currentAction == 'detail' or ea.crud.currentAction == 'index' %}
+    {# Vue Detail/Index - Affiche l'image si présente #}
+    {% set media = field.value %}
+    {% if media %}
+        <div class="media-preview-wrapper">
+            {% if media.mimeType starts with 'image/' %}
+                <img src="{{ '/uploads/' ~ media.storagePath }}"
+                     alt="{{ media.filename }}"
+                     class="img-thumbnail"
+                     style="max-width: 150px; max-height: 150px;">
+            {% else %}
+                <a href="{{ '/uploads/' ~ media.storagePath }}" target="_blank">
+                    <i class="fa fa-file"></i> {{ media.filename }}
+                </a>
+            {% endif %}
+            <div class="media-info text-muted small mt-1">
+                {{ media.getSizeInKB() }} KB
+            </div>
+        </div>
+    {% else %}
+        <span class="text-muted">Aucun fichier</span>
+    {% endif %}
+
+{% else %}
+    {# Vue Formulaire (New/Edit) #}
+    <div class="media-upload-field">
+        {# Preview de l'image existante #}
+        {% set entity = ea.entity.instance %}
+        {% set propertyName = field.property %}
+        {% set currentMedia = attribute(entity, propertyName) %}
+
+        {% if currentMedia and field.customOptions.get('showPreview') %}
+            <div class="current-media-preview mb-2">
+                <label class="form-label">Image actuelle:</label>
+                {% if currentMedia.mimeType starts with 'image/' %}
+                    <div class="mb-2">
+                        <img src="{{ '/uploads/' ~ currentMedia.storagePath }}"
+                             alt="{{ currentMedia.filename }}"
+                             class="img-thumbnail"
+                             style="max-width: 200px; max-height: 200px;">
+                    </div>
+                {% endif %}
+                <div class="text-muted small">
+                    {{ currentMedia.filename }} ({{ currentMedia.getSizeInKB() }} KB)
+                </div>
+            </div>
+        {% endif %}
+
+        {# Champ d'upload #}
+        {{ form_row(field.formType) }}
+
+        {# Informations sur les contraintes #}
+        <div class="form-help text-muted small mt-2">
+            {% set maxSize = field.customOptions.get('maxSize') %}
+            {% set allowedTypes = field.customOptions.get('allowedMimeTypes') %}
+
+            {% if maxSize %}
+                Taille max: {{ (maxSize / 1024 / 1024)|round(2) }} MB
+            {% endif %}
+
+            {% if allowedTypes is not empty %}
+                | Types autorisés:
+                {% for mimeType in allowedTypes %}
+                    {% if mimeType == 'image/jpeg' %}JPG{% endif %}
+                    {% if mimeType == 'image/png' %}PNG{% endif %}
+                    {% if mimeType == 'image/gif' %}GIF{% endif %}
+                    {% if mimeType == 'image/webp' %}WEBP{% endif %}
+                    {% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

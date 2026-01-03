@@ -1,0 +1,4 @@
+# JWT keys (private/public pem files)
+# Already covered by root .gitignore but added for clarity
+*.pem
+!.gitignore

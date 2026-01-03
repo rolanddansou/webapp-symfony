@@ -1,0 +1,53 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 7
+
+    paths:
+        - src
+        - tests
+
+    excludePaths:
+        - src/Kernel.php
+        - tests/bootstrap.php
+        - var/*
+        - vendor/*
+
+    # Symfony specific
+    symfony:
+        container_xml_path: var/cache/dev/App_KernelDevDebugContainer.xml
+        console_application_loader: tests/console-application.php
+
+    # Doctrine specific
+    doctrine:
+        objectManagerLoader: tests/doctrine-object-manager.php
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+    # Ignorer certaines erreurs courantes Symfony
+    ignoreErrors:
+        # Autowiring Symfony
+        - '#Access to an undefined property Symfony\\Component\\Security\\Core\\User\\UserInterface::\$#'
+        - '#Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface::#'
+
+        # Doctrine proxies
+        - '#Cannot call method get.*\(\) on .*\|null#'
+
+        # Dynamic properties sur les entités
+        - '#Access to an undefined property App\\Entity\\.*::\$.*#'
+
+    # Bootstrap file pour charger l'environnement
+    bootstrapFiles:
+        - tests/bootstrap.php
+
+    # Type hints stricts
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: false
+
+    # Parallel execution
+    parallel:
+        jobSize: 20
+        maximumNumberOfProcesses: 4
+

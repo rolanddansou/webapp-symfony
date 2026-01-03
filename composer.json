@@ -11,10 +11,15 @@
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
+        "easycorp/easyadmin-bundle": "^4.27",
+        "friendsofsymfony/jsrouting-bundle": "^3.6",
+        "league/flysystem-bundle": "^3.6",
+        "lexik/jwt-authentication-bundle": "^3.2",
+        "nelmio/api-doc-bundle": "^5.8",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.3",
+        "skipthedragon/inertia-bundle": "^1.1",
         "symfony/asset": "7.4.*",
-        "symfony/asset-mapper": "7.4.*",
         "symfony/console": "7.4.*",
         "symfony/doctrine-messenger": "7.4.*",
         "symfony/dotenv": "7.4.*",
@@ -24,6 +29,7 @@
         "symfony/framework-bundle": "7.4.*",
         "symfony/http-client": "7.4.*",
         "symfony/intl": "7.4.*",
+        "symfony/lock": "7.4.*",
         "symfony/mailer": "7.4.*",
         "symfony/mime": "7.4.*",
         "symfony/monolog-bundle": "^3.0|^4.0",
@@ -31,6 +37,7 @@
         "symfony/process": "7.4.*",
         "symfony/property-access": "7.4.*",
         "symfony/property-info": "7.4.*",
+        "symfony/rate-limiter": "7.4.*",
         "symfony/runtime": "7.4.*",
         "symfony/security-bundle": "7.4.*",
         "symfony/serializer": "7.4.*",
@@ -38,12 +45,16 @@
         "symfony/string": "7.4.*",
         "symfony/translation": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
+        "symfony/uid": "7.4.*",
         "symfony/ux-turbo": "^2.31",
         "symfony/validator": "7.4.*",
         "symfony/web-link": "7.4.*",
+        "symfony/webpack-encore-bundle": "^2.4",
         "symfony/yaml": "7.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "^2.9",
+        "zenstruck/schedule-bundle": "^1.9"
     },
     "config": {
         "allow-plugins": {
@@ -77,14 +88,47 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd",
-            "importmap:install": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "@php bin/phpunit"
+        ],
+        "test:unit": [
+            "@php bin/phpunit tests/Unit"
+        ],
+        "test:feature": [
+            "@php bin/phpunit tests/Feature"
+        ],
+        "test:coverage": [
+            "Composer\\Config::disableProcessTimeout",
+            "XDEBUG_MODE=coverage @php bin/phpunit --coverage-html var/coverage"
+        ],
+        "analyze": [
+            "@php vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "cs:check": [
+            "@php vendor/bin/php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs:fix": [
+            "@php vendor/bin/php-cs-fixer fix"
+        ],
+        "validate": [
+            "@test",
+            "@analyze",
+            "@cs:check"
+        ],
+        "db:validate": [
+            "@php bin/console doctrine:schema:validate"
+        ],
+        "deploy:check": [
+            "@db:validate",
+            "@validate"
         ]
     },
     "conflict": {

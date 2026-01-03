@@ -1,0 +1,40 @@
+# Notification module services configuration
+services:
+    # Individual channels
+    App\Feature\Notification\Channel\InAppChannel:
+        tags: ['app.notification_channel']
+
+    App\Feature\Notification\Channel\PushChannel:
+        tags: ['app.notification_channel']
+
+    App\Feature\Notification\Channel\EmailChannel:
+        arguments:
+            $senderEmail: '%env(MAILER_SENDER_EMAIL)%'
+            $senderName: '%env(MAILER_SENDER_NAME)%'
+        tags: ['app.notification_channel']
+
+    App\Feature\Notification\Channel\SmsChannel:
+        arguments:
+            $enabled: '%env(bool:SMS_ENABLED)%'
+        tags: ['app.notification_channel']
+
+    # Channel Registry
+    App\Feature\Notification\Channel\ChannelRegistry:
+        arguments:
+            $channels: !tagged_iterator app.notification_channel
+
+    # Preference Checker
+    App\Feature\Notification\Preference\PreferenceCheckerInterface:
+        alias: App\Feature\Notification\Preference\DatabasePreferenceChecker
+
+    # Template Renderer
+    App\Feature\Notification\Template\TemplateRendererInterface:
+        alias: App\Feature\Notification\Template\DatabaseTemplateRenderer
+
+    # Dispatcher
+    App\Feature\Notification\Dispatcher\NotificationDispatcherInterface:
+        alias: App\Feature\Notification\Dispatcher\NotificationDispatcher
+
+    # Service
+    App\Feature\Notification\Service\NotificationServiceInterface:
+        alias: App\Feature\Notification\Service\NotificationService
