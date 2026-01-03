@@ -1,4 +1,6 @@
 includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
     - phpstan-baseline.neon
 
 parameters:
@@ -23,31 +25,27 @@ parameters:
     doctrine:
         objectManagerLoader: tests/doctrine-object-manager.php
 
+    # Reduire le bruit sur les generics/iterables (Symfony + Doctrine)
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
 
-    # Ignorer certaines erreurs courantes Symfony
     ignoreErrors:
         # Autowiring Symfony
         - '#Access to an undefined property Symfony\\Component\\Security\\Core\\User\\UserInterface::\$#'
         - '#Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface::#'
 
-        # Doctrine proxies
+        # Doctrine proxies / nullable
         - '#Cannot call method get.*\(\) on .*\|null#'
 
-        # Dynamic properties sur les entités
+        # Dynamic properties sur les entites
         - '#Access to an undefined property App\\Entity\\.*::\$.*#'
 
-    # Bootstrap file pour charger l'environnement
     bootstrapFiles:
         - tests/bootstrap.php
 
-    # Type hints stricts
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: false
 
-    # Parallel execution
     parallel:
         jobSize: 20
         maximumNumberOfProcesses: 4
-
