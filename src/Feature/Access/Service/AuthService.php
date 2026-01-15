@@ -67,7 +67,7 @@ final readonly class AuthService implements AuthServiceInterface
         $credentials->setPasswordHash($hashedPassword);
 
         // Save identity and credentials
-        $this->userRepository->save($identity);
+        $this->userRepository->save($identity, true);
         $this->credentialsRepository->save($credentials, true);
 
         // Create Customer profile

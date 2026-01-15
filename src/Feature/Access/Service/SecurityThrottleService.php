@@ -14,16 +14,16 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 /**
  * Service for handling rate limiting and account lockout
  */
-final class SecurityThrottleService
+final readonly class SecurityThrottleService
 {
     public function __construct(
-        private readonly LoginAttemptRepository $loginAttemptRepository,
-        private readonly RequestStack $requestStack,
-        #[Target('authLogger')]
-        private readonly LoggerInterface $logger,
-        private readonly ?RateLimiterFactory $loginLimiter = null,
-        private readonly ?RateLimiterFactory $registrationLimiter = null,
-        private readonly ?RateLimiterFactory $passwordResetLimiter = null,
+        private LoginAttemptRepository  $loginAttemptRepository,
+        private RequestStack            $requestStack,
+        #[Target('security.logger')]
+        private LoggerInterface         $logger,
+        private RateLimiterFactory|null $loginLimiter = null,
+        private RateLimiterFactory|null $registrationLimiter = null,
+        private RateLimiterFactory|null $passwordResetLimiter = null,
     ) {
     }
 

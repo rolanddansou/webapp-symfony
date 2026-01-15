@@ -43,4 +43,14 @@ interface AuthServiceInterface
      * Reset password with token
      */
     public function resetPassword(string $token, string $newPassword): void;
+
+    /**
+     * Reset password with code
+     */
+    public function resetPasswordWithCode(string $email, string $code, string $newPassword): void;
+
+    /**
+     * Verify password reset code
+     */
+    public function verifyPasswordResetCode(string $email, string $code): bool;
 }

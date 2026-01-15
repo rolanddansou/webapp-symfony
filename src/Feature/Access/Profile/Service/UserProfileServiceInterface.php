@@ -10,4 +10,5 @@ interface UserProfileServiceInterface
     public function getUserProfile(string $id): ?UserProfile;
     public function updateCustomer(UserProfile $customer, UpdateUserProfileRequest $request): UserProfile;
     public function updatePreferences(UserProfile $customer, array $preferences): UserProfile;
+    public function updatePreferencesFromRequest(UserProfile $customer, \App\Feature\Access\Profile\DTO\UserProfilePreferencesRequest $request): UserProfile;
 }

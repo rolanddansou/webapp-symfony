@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -20,8 +21,10 @@ final readonly class ErrorMonitoringSubscriber implements EventSubscriberInterfa
         private LoggerInterface $logger,
         private LoggerInterface $securityLogger,
         private LoggerInterface $businessLogger,
+        private Security $security,
         private string $environment,
-    ) {}
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -49,15 +52,14 @@ final readonly class ErrorMonitoringSubscriber implements EventSubscriberInterfa
         ];
 
         // Ajouter l'utilisateur si authentifié
-        if ($request->attributes->has('_security_token')) {
-            $token = $request->attributes->get('_security_token');
-            if ($token && method_exists($token, 'getUser')) {
-                $user = $token->getUser();
-                if ($user && method_exists($user, 'getId')) {
-                    $context['user_id'] = (string) $user->getId();
-                    $context['user_email'] = method_exists($user, 'getEmail') ? $user->getEmail() : null;
-                }
+        try {
+            $user = $this->security->getUser();
+            if ($user && method_exists($user, 'getId')) {
+                $context['user_id'] = (string) $user->getId();
+                $context['user_email'] = method_exists($user, 'getEmail') ? $user->getEmail() : null;
             }
+        } catch (\Exception $e) {
+            // Silently fail if security is not available
         }
 
         // Ajouter le corps de la requête pour les erreurs API

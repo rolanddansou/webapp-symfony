@@ -28,6 +28,10 @@ readonly class AdminIdentityChecker implements UserCheckerInterface
         if (!$identity->isEnabled()) {
             throw new CustomUserMessageAccountStatusException("Votre compte n'est pas actif.");
         }
+
+        if(!$user->isAdminUser($this->manager)) {
+            throw new CustomUserMessageAccountStatusException("Vous n'avez pas les droits pour accéder à cette section.");
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void
@@ -36,7 +40,7 @@ readonly class AdminIdentityChecker implements UserCheckerInterface
             return;
         }
 
-        $identity = $user->getIdentity();
+        $identity = $this->manager->getRepository(get_class($user->getIdentity()))->find($user->getIdentity()->getId());
 
         $identity->setLastLoginAt(DateHelper::nowUTC());
         $this->manager->persist($identity);

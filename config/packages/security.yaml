@@ -11,6 +11,10 @@ security:
         app_user_provider:
             id: App\Feature\Access\Security\IdentityProvider
 
+        # Provider spécifique pour l'administration (uniquement utilisateurs AdminUser)
+        admin_user_provider:
+            id: App\Feature\Access\Security\AdminProvider
+
     # Hiérarchie des rôles
     role_hierarchy:
         ROLE_ADMIN: ROLE_BACKEND
@@ -22,25 +26,30 @@ security:
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
 
-        # API REST avec JWT (stateless)
+        # API REST - Routes publiques
         api_public:
             pattern: ^/api/(auth/(register|login|refresh|forgot-password|reset-password|verify-email|verify-reset-code|resend-verification|verification/(verify|send))|offers/active|docs)
             stateless: true
             security: false
 
+        # API REST - Routes authentifiées (partage le contexte avec main)
         api:
             pattern: ^/api
-            stateless: true
+            stateless: false
             provider: app_user_provider
-            jwt: ~
-            entry_point: jwt
+            context: shared_context
+            # JWT désactivé car on utilise les sessions partagées avec main
+            # Si vous avez besoin de JWT pour des clients externes, réactivez-le
+            # jwt: ~
+            # entry_point: jwt
 
         # Interface d'administration (session + remember_me)
         admin:
             pattern: ^/admin
             stateless: false
-            provider: app_user_provider
+            provider: admin_user_provider
             lazy: true
+            context: admin_context
 
             # Formulaire de connexion admin
             form_login:
@@ -66,19 +75,41 @@ security:
             # Switch user pour débogage (SUPER_ADMIN uniquement)
             switch_user: true
 
-        # Routes publiques
+        # Routes publiques (partage le contexte avec api)
         main:
             lazy: true
             provider: app_user_provider
+            stateless: false
+            context: shared_context
+
+            # Formulaire de connexion utilisateur
+            form_login:
+                login_path: login
+                check_path: login
+                default_target_path: /
+                enable_csrf: true
+
+            # Déconnexion
+            logout:
+                path: /logout
+                target: /
+
+            # Remember me optionnel pour l'interface utilisateur
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000 # 30 jours
+                path: /
+                always_remember_me: false
 
 
     # Access control
     access_control:
         # API - Authentification JWT requise
-        - { path: ^/api/auth/(register|login|refresh|forgot-password|reset-password|verify-email|verify-reset-code|resend-verification|verification/(verify|send)), roles: PUBLIC_ACCESS }
-        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api, roles: ROLE_USER }
+        #- { path: ^/api/auth/(register|login|refresh|forgot-password|reset-password|verify-email|verify-reset-code|resend-verification|verification/(verify|send)), roles: PUBLIC_ACCESS }
+        #- { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        #- { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        #- { path: ^/api, roles: ROLE_USER }
+        - { path: ^/api, roles: PUBLIC_ACCESS }
 
         # Admin - Rôles backend minimum
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }

@@ -27,7 +27,7 @@ class UserRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            
+
             // Invalider le cache pour cet utilisateur
             if ($entity->getEmail()) {
                 $this->invalidateCache('user.email.' . md5($entity->getEmail()));
@@ -46,17 +46,15 @@ class UserRepository extends ServiceEntityRepository
 
     public function findByEmail(string $email): ?Identity
     {
-        return $this->cachedQuery(
-            'user.email.' . md5($email),
-            fn() => $this->createQueryBuilder('u')
-                ->andWhere('u.email = :email')
-                ->setParameter('email', $email)
-                ->getQuery()
-                ->getOneOrNullResult(),
-            ttl: 300  // 5 minutes (données authentification)
-        );
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.roles', 'r')
+            ->addSelect('r')
+            ->andWhere('u.email = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
-    
+
     /**
      * Trouve les utilisateurs actifs avec pagination.
      * Recommandé pour listes et exports sur hébergement partagé.
@@ -66,10 +64,10 @@ class UserRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.enabled = true')
             ->orderBy('u.createdAt', 'DESC');
-        
+
         return $this->paginate($qb, $page, $limit);
     }
-    
+
     /**
      * Compte les utilisateurs avec cache (évite COUNT(*) répété).
      */
