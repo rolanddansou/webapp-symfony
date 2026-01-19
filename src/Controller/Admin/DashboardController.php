@@ -41,7 +41,7 @@ class DashboardController extends AbstractDashboardController
 
         // Render custom dashboard with Vue.js analytics
         $response = $this->render('admin/dashboard.html.twig');
-        
+
         // Cache 5 minutes (dashboard relativement stable pour utilisateur connecté)
         return $this->cacheService->cachePrivate($response, 300);
     }
@@ -62,7 +62,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Merchants');
 
         // Access Management - admin only
-        if (!$this->roleManager->isAdmin()) {
+        if ($this->roleManager->isAdmin()) {
             yield MenuItem::section('Access Management');
             yield MenuItem::linkToCrud('Identities', 'fa fa-user', Identity::class);
             yield MenuItem::linkToCrud('Credentials', 'fa fa-key', UserCredentials::class);
