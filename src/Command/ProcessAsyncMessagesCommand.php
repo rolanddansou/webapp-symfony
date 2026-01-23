@@ -9,16 +9,17 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Process\Process;
 
 /**
  * Commande optimisée pour traiter les messages async sur hébergement partagé.
- * 
+ *
  * Contrairement au worker permanent (systemd), cette commande:
  * - Se termine automatiquement après N messages ou X minutes
  * - Limite la mémoire pour éviter crash sur serveur partagé
  * - Peut être appelée par cron job ou probabilistiquement
- * 
+ *
  * Usage:
  * 1. Cron (toutes les 5 min): php bin/console app:process-async-messages
  * 2. Probabiliste: Déclencher sur 10% des requêtes web
@@ -31,11 +32,13 @@ use Symfony\Component\Process\Process;
 class ProcessAsyncMessagesCommand extends Command
 {
     public function __construct(
-        private readonly MessageBusInterface $bus
+        private readonly MessageBusInterface $bus,
+        #[Autowire('%kernel.project_dir%')]
+        private readonly string $projectDir
     ) {
         parent::__construct();
     }
-    
+
     protected function configure(): void
     {
         $this
@@ -88,22 +91,22 @@ Recommandations hébergement partagé:
 HELP
             );
     }
-    
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
+
         $limit = (int) $input->getOption('limit');
         $timeLimit = (int) $input->getOption('time-limit');
         $memoryLimit = $input->getOption('memory-limit');
         $transport = $input->getOption('transport');
-        
+
         // Vérifier si un autre worker tourne déjà (éviter conflits)
         if ($this->isWorkerRunning()) {
             $io->note('Another worker is already running. Skipping...');
             return Command::SUCCESS;
         }
-        
+
         $io->title('Processing Async Messages');
         $io->info(sprintf(
             'Configuration: max %d messages, %ds timeout, %s memory',
@@ -111,11 +114,13 @@ HELP
             $timeLimit,
             $memoryLimit
         ));
-        
+
         // Créer le process messenger:consume avec limites
+        $consolePath = $this->projectDir . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'console';
+
         $command = [
             PHP_BINARY,
-            'bin/console',
+            $consolePath,
             'messenger:consume',
             $transport,
             '--limit=' . $limit,
@@ -123,7 +128,7 @@ HELP
             '--memory-limit=' . $memoryLimit,
             '--no-interaction',
         ];
-        
+
         // Ajouter verbosity selon output
         if ($output->isVerbose()) {
             $command[] = '-v';
@@ -134,7 +139,7 @@ HELP
         } else {
             $command[] = '--quiet';
         }
-        
+
         $process = new Process(
             $command,
             getcwd(),
@@ -142,10 +147,10 @@ HELP
             null,
             $timeLimit + 30  // Timeout avec marge
         );
-        
+
         $startTime = microtime(true);
         $io->text('Starting worker...');
-        
+
         try {
             $process->run(function ($type, $buffer) use ($output) {
                 // Transférer output du worker vers console
@@ -155,9 +160,9 @@ HELP
                     $output->write($buffer);
                 }
             });
-            
+
             $duration = round(microtime(true) - $startTime, 2);
-            
+
             if ($process->isSuccessful()) {
                 $io->success(sprintf(
                     'Worker completed successfully in %ss',
@@ -173,13 +178,13 @@ HELP
                 $io->text('Error output: ' . $process->getErrorOutput());
                 return Command::FAILURE;
             }
-            
+
         } catch (\Exception $e) {
             $io->error('Exception during message processing: ' . $e->getMessage());
             return Command::FAILURE;
         }
     }
-    
+
     /**
      * Vérifie si un worker messenger:consume tourne déjà.
      * Évite les conflits sur messages (double traitement).
@@ -191,15 +196,15 @@ HELP
             $process = Process::fromShellCommandline('tasklist | findstr "php.exe"');
             $process->run();
             $output = $process->getOutput();
-            
+
             // Compter les process PHP (plus de 2 = worker tourne probablement)
             return substr_count($output, 'php.exe') > 2;
         }
-        
+
         // Sur Linux/Unix, vérifier avec ps
         $process = Process::fromShellCommandline('ps aux | grep "[m]essenger:consume" | wc -l');
         $process->run();
-        
+
         return (int) trim($process->getOutput()) > 0;
     }
 }

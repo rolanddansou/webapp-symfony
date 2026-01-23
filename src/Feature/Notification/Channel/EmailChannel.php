@@ -6,6 +6,7 @@ use App\Feature\Notification\Message\NotificationMessage;
 use App\Feature\Notification\Result\DeliveryResult;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Address;
@@ -21,10 +22,15 @@ final class EmailChannel implements NotificationChannelInterface
 
     public function __construct(
         private readonly LoggerInterface $logger,
+        #[Autowire('%app_name%')]
+        private string $appName,
+        #[Autowire('%kernel.project_dir%')]
+        private string $projectDir,
         private readonly string $notificationsDsn,
         private readonly string $senderEmail,
         private readonly string $senderName,
-    ) {}
+    ) {
+    }
 
     public function getChannelId(): string
     {
@@ -61,6 +67,18 @@ final class EmailChannel implements NotificationChannelInterface
 
             $email->sender(new Address($this->senderEmail, $this->senderName));
 
+            // Attach PDF invoice if present
+            if (isset($message->getData()['invoice_pdf_path']) && !empty($message->getData()['invoice_pdf_path'])) {
+                $relativePdfPath = $message->getData()['invoice_pdf_path'];
+                $absolutePdfPath = $this->projectDir . DIRECTORY_SEPARATOR . $relativePdfPath;
+
+                if (file_exists($absolutePdfPath)) {
+                    $email->attachFromPath($absolutePdfPath);
+                } else {
+                    $this->logger->warning('Attachment PDF file not found', ['path' => $absolutePdfPath]);
+                }
+            }
+
             $transport = Transport::fromDsn($this->notificationsDsn);
             $mailer = new Mailer($transport);
             $mailer->send($email);
@@ -96,6 +114,7 @@ final class EmailChannel implements NotificationChannelInterface
     {
         $body = nl2br(htmlspecialchars($message->getBody()));
         $actionButton = '';
+        $appName = htmlspecialchars($this->appName);
 
         if ($message->getActionUrl()) {
             $label = htmlspecialchars($message->getActionLabel() ?? 'Voir plus');
@@ -117,8 +136,8 @@ final class EmailChannel implements NotificationChannelInterface
                 <title>{$message->getTitle()}</title>
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: linear-gradient(135deg, #F99F00 0%, #FF6B00 100%); padding: 20px; border-radius: 8px 8px 0 0;">
-                    <h1 style="color: white; margin: 0; font-size: 24px;">Fidelys</h1>
+                <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px;">{$appName}</h1>
                 </div>
                 <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
                     <h2 style="color: #333; margin-top: 0;">{$message->getTitle()}</h2>
@@ -126,7 +145,7 @@ final class EmailChannel implements NotificationChannelInterface
                     {$actionButton}
                 </div>
                 <div style="text-align: center; padding: 20px; color: #888; font-size: 12px;">
-                    <p>© Fidelys - Votre programme de fidélité</p>
+                    <p>© {$appName}</p>
                 </div>
             </body>
             </html>

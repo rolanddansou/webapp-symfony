@@ -15,34 +15,6 @@ final class NotificationType
     public const SECURITY_ALERT = 'security_alert';
     public const NEW_DEVICE_LOGIN = 'new_device_login';
 
-    // Loyalty & Points
-    public const POINTS_EARNED = 'points_earned';
-    public const POINTS_SPENT = 'points_spent';
-    public const POINTS_EXPIRING = 'points_expiring';
-    public const CARD_ISSUED = 'card_issued';
-    public const TIER_UPGRADED = 'tier_upgraded';
-    public const TIER_DOWNGRADED = 'tier_downgraded';
-
-    // Transactions
-    public const TRANSACTION_COMPLETED = 'transaction_completed';
-    public const TRANSACTION_FAILED = 'transaction_failed';
-    public const TRANSACTION_REFUNDED = 'transaction_refunded';
-
-    // Rewards & Offers
-    public const REWARD_AVAILABLE = 'reward_available';
-    public const REWARD_REDEEMED = 'reward_redeemed';
-    public const REWARD_EXPIRING = 'reward_expiring';
-    public const NEW_OFFER = 'new_offer';
-    public const OFFER_EXPIRING = 'offer_expiring';
-
-    // Vouchers
-    public const VOUCHER_GENERATED = 'voucher_generated';
-    public const VOUCHER_REDEEMED = 'voucher_redeemed';
-
-    // Scans
-    public const SCAN_COMPLETED = 'scan_completed';
-    public const SCAN_FAILED = 'scan_failed';
-
     // Marketing
     public const PROMOTIONAL = 'promotional';
     public const NEWSLETTER = 'newsletter';
@@ -64,24 +36,6 @@ final class NotificationType
             self::PASSWORD_CHANGED,
             self::SECURITY_ALERT,
             self::NEW_DEVICE_LOGIN,
-            self::POINTS_EARNED,
-            self::POINTS_SPENT,
-            self::POINTS_EXPIRING,
-            self::CARD_ISSUED,
-            self::TIER_UPGRADED,
-            self::TIER_DOWNGRADED,
-            self::TRANSACTION_COMPLETED,
-            self::TRANSACTION_FAILED,
-            self::TRANSACTION_REFUNDED,
-            self::REWARD_AVAILABLE,
-            self::REWARD_REDEEMED,
-            self::REWARD_EXPIRING,
-            self::NEW_OFFER,
-            self::OFFER_EXPIRING,
-            self::VOUCHER_GENERATED,
-            self::VOUCHER_REDEEMED,
-            self::SCAN_COMPLETED,
-            self::SCAN_FAILED,
             self::PROMOTIONAL,
             self::NEWSLETTER,
             self::SYSTEM_MAINTENANCE,
@@ -97,7 +51,6 @@ final class NotificationType
         return in_array($type, [
             self::SECURITY_ALERT,
             self::PASSWORD_RESET,
-            self::TRANSACTION_FAILED,
             self::NEW_DEVICE_LOGIN,
         ], true);
     }
@@ -110,7 +63,6 @@ final class NotificationType
         return in_array($type, [
             self::PROMOTIONAL,
             self::NEWSLETTER,
-            self::NEW_OFFER,
         ], true);
     }
 
@@ -130,10 +82,6 @@ final class NotificationType
             self::PROMOTIONAL,
             self::NEWSLETTER => ['email'],
 
-            self::POINTS_EARNED,
-            self::REWARD_REDEEMED,
-            self::TRANSACTION_COMPLETED => ['push', 'in_app'],
-
             default => ['in_app', 'push'],
         };
     }
@@ -151,24 +99,6 @@ final class NotificationType
                 self::PASSWORD_CHANGED => 'Mot de passe modifié',
                 self::SECURITY_ALERT => 'Alerte de sécurité',
                 self::NEW_DEVICE_LOGIN => 'Nouvelle connexion',
-                self::POINTS_EARNED => 'Points gagnés',
-                self::POINTS_SPENT => 'Points dépensés',
-                self::POINTS_EXPIRING => 'Points expirant bientôt',
-                self::CARD_ISSUED => 'Carte émise',
-                self::TIER_UPGRADED => 'Niveau augmenté',
-                self::TIER_DOWNGRADED => 'Niveau diminué',
-                self::TRANSACTION_COMPLETED => 'Transaction terminée',
-                self::TRANSACTION_FAILED => 'Transaction échouée',
-                self::TRANSACTION_REFUNDED => 'Transaction remboursée',
-                self::REWARD_AVAILABLE => 'Récompense disponible',
-                self::REWARD_REDEEMED => 'Récompense utilisée',
-                self::REWARD_EXPIRING => 'Récompense expirant bientôt',
-                self::NEW_OFFER => 'Nouvelle offre',
-                self::OFFER_EXPIRING => 'Offre expirant bientôt',
-                self::VOUCHER_GENERATED => 'Voucher généré',
-                self::VOUCHER_REDEEMED => 'Voucher utilisé',
-                self::SCAN_COMPLETED => 'Scan terminé',
-                self::SCAN_FAILED => 'Scan échoué',
                 self::PROMOTIONAL => 'Promotion',
                 self::NEWSLETTER => 'Newsletter',
                 self::SYSTEM_MAINTENANCE => 'Maintenance système',

@@ -14,7 +14,7 @@ class AppScheduleBuilder implements ScheduleBuilder
 
         $schedule->addCommand('app:process-async-messages')
             ->description('Process async messages')
-            ->everyMinute()
+            ->cron('*/5 * * * *') // Every 5 minutes
             ->withoutOverlapping()
         ;
     }
