@@ -21,7 +21,7 @@ services:
     App\:
         resource: '../src/'
         exclude:
-            - '../src/Feature/Access/Service/JwtUser.php'
+            - '../src/Feature/Access/Service/IdentityUser.php'
             - '../src/Feature/Notification/Channel/NotificationChannelInterface.php'
             - '../src/Entity/'
             - '../src/Kernel.php'
